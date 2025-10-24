@@ -1,0 +1,71 @@
+{
+  "name": "iomete-jupiter-parser",
+  "version": "0.1.0",
+  "description": "React component library for IOMETE Jupiter parser",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "dev": "rollup -c -w",
+    "build": "rollup -c",
+    "test": "vitest",
+    "test:watch": "vitest watch",
+    "storybook": "storybook dev -p 6006",
+    "storybook:clean": "pkill -f 'storybook dev' || true && rm -rf node_modules/.cache/storybook",
+    "build-storybook": "storybook build",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "react",
+    "iomete",
+    "jupiter",
+    "parser",
+    "component"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "module",
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@storybook/addon-docs": "^9.1.8",
+    "@storybook/addon-onboarding": "^9.1.8",
+    "@storybook/react-vite": "^9.1.8",
+    "@types/react": "^19.1.15",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "rollup": "^4.52.3",
+    "rollup-plugin-dts": "^6.2.3",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "storybook": "^9.1.8",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/iomete-jupiter-parser.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/iomete-jupiter-parser/issues"
+  },
+  "homepage": "https://github.com/yourusername/iomete-jupiter-parser#readme"
+}

@@ -1,0 +1,37 @@
+# Source files
+src/
+
+# Config files
+rollup.config.js
+tsconfig.json
+.prettierrc
+.eslintrc.js
+
+# Development files
+.storybook/
+**/*.stories.tsx
+**/*.test.tsx
+**/*.test.ts
+
+# Documentation
+docs/
+
+# Examples
+examples/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# CI/CD
+.github/
+.travis.yml
+.circleci/
+
+# Other
+*.log
+.DS_Store
