@@ -1,6 +1,6 @@
 {
   "name": "@iomete/jupyter-renderer-react",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "React component library for IOMETE Jupiter parser",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -38,7 +38,7 @@
     "parser",
     "component"
   ],
-  "author": "",
+  "author": "Mammad Mammadli",
   "license": "MIT",
   "type": "module",
   "peerDependencies": {
@@ -69,12 +69,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/iomete-jupiter-parser.git"
+    "url": "git+https://github.com/iomete/jupyter-renderer-react"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/iomete-jupiter-parser/issues"
+    "url": "https://github.com/iomete/jupyter-renderer-react/issues"
   },
-  "homepage": "https://github.com/yourusername/iomete-jupiter-parser#readme",
+  "homepage": "https://github.com/iomete/jupyter-renderer-react#readme",
   "dependencies": {
     "@jupyterlab/codemirror": "^4.4.10",
     "@jupyterlab/theme-dark-extension": "^4.4.10",
