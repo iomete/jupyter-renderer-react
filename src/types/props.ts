@@ -1,10 +1,22 @@
 import { ReactNode, CSSProperties } from 'react';
 import { Cell, JupyterNotebook } from './notebook';
 
+// File path input type
+export interface NotebookFilePath {
+  filePath: string;
+}
+
+// Fetch options for file loading
+export interface FetchOptions {
+  headers?: Record<string, string>;
+  timeout?: number;
+  credentials?: RequestCredentials;
+}
+
 // Main component props
-export interface JupiterParserProps {
+export interface JupiterNotebookViewerProps {
   // Core data
-  notebook: JupyterNotebook | string; // Accept both parsed object or raw JSON string
+  notebook: JupyterNotebook | string | NotebookFilePath; // Accept parsed object, raw JSON string, or file path
   
   // Styling approach
   className?: string;              // Root container class
@@ -16,7 +28,6 @@ export interface JupiterParserProps {
   showCellNumbers?: boolean;       // Show execution counts (default: true)
   showOutputs?: boolean;           // Toggle output visibility (default: true)
   collapsible?: boolean;           // Allow collapsing cells (default: false)
-  copyable?: boolean;              // Show copy buttons for code (default: true)
   
   // Rendering options
   renderMarkdown?: (content: string) => ReactNode;  // Custom markdown renderer
@@ -25,10 +36,14 @@ export interface JupiterParserProps {
   renderHtml?: (html: string) => ReactNode; // Custom HTML renderer
   renderError?: (error: { ename: string; evalue: string; traceback: string[] }) => ReactNode;
   
+  // File loading options (only used when notebook is a file path)
+  fetchOptions?: FetchOptions;
+  
   // Event handlers
   onCellClick?: (cell: Cell, index: number) => void;
-  onCopy?: (content: string, type: 'code' | 'output') => void;
   onError?: (error: Error) => void;
+  onFileLoad?: (notebook: JupyterNotebook) => void;
+  onFileError?: (error: Error) => void;
   
   // Performance
   lazyLoad?: boolean;              // Lazy load large outputs (default: false)
@@ -59,7 +74,6 @@ export interface ClassNames {
   errorName?: string;
   errorValue?: string;
   errorTraceback?: string;
-  copyButton?: string;
   collapseButton?: string;
   collapsed?: string;
 }
@@ -87,7 +101,6 @@ export interface Styles {
   errorName?: CSSProperties;
   errorValue?: CSSProperties;
   errorTraceback?: CSSProperties;
-  copyButton?: CSSProperties;
   collapseButton?: CSSProperties;
 }
 
@@ -153,61 +166,61 @@ export interface Theme {
   };
 }
 
-// Predefined themes
+// Predefined themes using JupyterLab CSS variables
 export const themes = {
   light: {
     name: 'light',
     colors: {
-      background: '#ffffff',
-      backgroundAlt: '#f8f9fa',
-      text: '#212529',
-      textSecondary: '#6c757d',
-      border: '#dee2e6',
-      codeBg: '#f8f9fa',
-      codeText: '#212529',
-      markdownBg: '#ffffff',
-      outputBg: '#ffffff',
-      errorBg: '#f8d7da',
-      errorText: '#721c24',
-      errorBorder: '#f5c6cb',
-      stdoutText: '#212529',
-      stderrText: '#dc3545',
-      link: '#0066cc',
-      linkHover: '#0052a3',
-      buttonBg: '#e9ecef',
-      buttonText: '#495057',
-      buttonHover: '#dee2e6',
-      success: '#28a745',
-      warning: '#ffc107',
-      info: '#17a2b8',
+      background: 'var(--jp-layout-color0, white)',
+      backgroundAlt: 'var(--jp-layout-color1, white)',
+      text: 'var(--jp-content-font-color0, rgba(0, 0, 0, 1))',
+      textSecondary: 'var(--jp-cell-prompt-not-active-font-color, #616161)',
+      border: 'var(--jp-border-color0, #bdbdbd)',
+      codeBg: 'var(--jp-cell-editor-background, #f5f5f5)',
+      codeText: 'var(--jp-content-font-color0, rgba(0, 0, 0, 1))',
+      markdownBg: 'var(--jp-layout-color0, white)',
+      outputBg: 'var(--jp-layout-color0, white)',
+      errorBg: 'var(--jp-error-color3, #ffcdd2)',
+      errorText: 'var(--jp-error-color0, #b71c1c)',
+      errorBorder: 'var(--jp-error-color1, #d32f2f)',
+      stdoutText: 'var(--jp-content-font-color0, rgba(0, 0, 0, 1))',
+      stderrText: 'var(--jp-error-color1, #d32f2f)',
+      link: 'var(--jp-content-link-color, #0d47a1)',
+      linkHover: 'var(--jp-content-link-hover-color, #42a5f5)',
+      buttonBg: 'var(--jp-layout-color2, #eee)',
+      buttonText: 'var(--jp-content-font-color0, rgba(0, 0, 0, 1))',
+      buttonHover: 'var(--jp-layout-color3, #bdbdbd)',
+      success: 'var(--jp-success-color1, #388e3c)',
+      warning: 'var(--jp-warn-color1, #f57c00)',
+      info: 'var(--jp-info-color1, #0097a7)',
     },
     spacing: {
-      xs: '0.25rem',
-      sm: '0.5rem',
-      md: '1rem',
-      lg: '1.5rem',
-      xl: '2rem',
-      cell: '1rem',
-      cellPadding: '1rem',
-      outputPadding: '0.75rem',
+      xs: '2px',
+      sm: 'var(--jp-cell-padding, 5px)',
+      md: '8px',
+      lg: '12px',
+      xl: '16px',
+      cell: '0px',
+      cellPadding: 'var(--jp-cell-padding, 5px)',
+      outputPadding: 'var(--jp-cell-padding, 5px)',
     },
     fonts: {
-      base: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      code: 'SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-      markdown: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      base: 'var(--jp-content-font-family, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif)',
+      code: 'var(--jp-code-font-family, Menlo, Consolas, "DejaVu Sans Mono", monospace)',
+      markdown: 'var(--jp-content-font-family, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif)',
     },
     fontSize: {
       xs: '0.75rem',
-      sm: '0.875rem',
-      base: '1rem',
+      sm: 'var(--jp-ui-font-size1, 13px)',
+      base: 'var(--jp-content-font-size1, 14px)',
       lg: '1.125rem',
       xl: '1.25rem',
-      code: '0.875rem',
+      code: 'var(--jp-code-font-size, 13px)',
     },
     borderRadius: {
-      sm: '0.25rem',
-      md: '0.375rem',
-      lg: '0.5rem',
+      sm: 'var(--jp-border-radius, 2px)',
+      md: 'var(--jp-border-radius, 2px)',
+      lg: 'var(--jp-border-radius, 2px)',
     },
     shadows: {
       sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
@@ -218,56 +231,56 @@ export const themes = {
   dark: {
     name: 'dark',
     colors: {
-      background: '#1e1e1e',
-      backgroundAlt: '#252526',
-      text: '#cccccc',
-      textSecondary: '#8b8b8b',
-      border: '#3e3e42',
-      codeBg: '#1e1e1e',
-      codeText: '#d4d4d4',
-      markdownBg: '#1e1e1e',
-      outputBg: '#252526',
-      errorBg: '#5a1d1d',
-      errorText: '#f48771',
-      errorBorder: '#6e2e2e',
-      stdoutText: '#cccccc',
-      stderrText: '#f48771',
-      link: '#4fc3f7',
-      linkHover: '#29b6f6',
-      buttonBg: '#3e3e42',
-      buttonText: '#cccccc',
-      buttonHover: '#505055',
-      success: '#4ec9b0',
-      warning: '#ce9178',
-      info: '#569cd6',
+      background: 'var(--jp-layout-color0, #111)',
+      backgroundAlt: 'var(--jp-layout-color1, #212121)',
+      text: 'var(--jp-content-font-color0, rgba(255, 255, 255, 1))',
+      textSecondary: 'var(--jp-cell-prompt-not-active-font-color, #e0e0e0)',
+      border: 'var(--jp-border-color0, #616161)',
+      codeBg: 'var(--jp-cell-editor-background, #212121)',
+      codeText: 'var(--jp-content-font-color0, rgba(255, 255, 255, 1))',
+      markdownBg: 'var(--jp-layout-color0, #111)',
+      outputBg: 'var(--jp-layout-color1, #212121)',
+      errorBg: 'var(--jp-error-color3, #ffcdd2)',
+      errorText: 'var(--jp-error-color1, #f44336)',
+      errorBorder: 'var(--jp-error-color1, #f44336)',
+      stdoutText: 'var(--jp-content-font-color0, rgba(255, 255, 255, 1))',
+      stderrText: 'var(--jp-error-color1, #f44336)',
+      link: 'var(--jp-content-link-color, #64b5f6)',
+      linkHover: 'var(--jp-content-link-hover-color, #42a5f5)',
+      buttonBg: 'var(--jp-layout-color2, #424242)',
+      buttonText: 'var(--jp-content-font-color0, rgba(255, 255, 255, 1))',
+      buttonHover: 'var(--jp-layout-color3, #616161)',
+      success: 'var(--jp-success-color1, #4caf50)',
+      warning: 'var(--jp-warn-color1, #ff9800)',
+      info: 'var(--jp-info-color1, #00bcd4)',
     },
     spacing: {
-      xs: '0.25rem',
-      sm: '0.5rem',
-      md: '1rem',
-      lg: '1.5rem',
-      xl: '2rem',
-      cell: '1rem',
-      cellPadding: '1rem',
-      outputPadding: '0.75rem',
+      xs: '2px',
+      sm: 'var(--jp-cell-padding, 5px)',
+      md: '8px',
+      lg: '12px',
+      xl: '16px',
+      cell: '0px',
+      cellPadding: 'var(--jp-cell-padding, 5px)',
+      outputPadding: 'var(--jp-cell-padding, 5px)',
     },
     fonts: {
-      base: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-      code: 'SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-      markdown: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      base: 'var(--jp-content-font-family, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif)',
+      code: 'var(--jp-code-font-family, Menlo, Consolas, "DejaVu Sans Mono", monospace)',
+      markdown: 'var(--jp-content-font-family, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif)',
     },
     fontSize: {
       xs: '0.75rem',
-      sm: '0.875rem',
-      base: '1rem',
+      sm: 'var(--jp-ui-font-size1, 13px)',
+      base: 'var(--jp-content-font-size1, 14px)',
       lg: '1.125rem',
       xl: '1.25rem',
-      code: '0.875rem',
+      code: 'var(--jp-code-font-size, 13px)',
     },
     borderRadius: {
-      sm: '0.25rem',
-      md: '0.375rem',
-      lg: '0.5rem',
+      sm: 'var(--jp-border-radius, 2px)',
+      md: 'var(--jp-border-radius, 2px)',
+      lg: 'var(--jp-border-radius, 2px)',
     },
     shadows: {
       sm: '0 1px 2px 0 rgba(0, 0, 0, 0.3)',

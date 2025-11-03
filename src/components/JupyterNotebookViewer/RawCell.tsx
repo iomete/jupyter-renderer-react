@@ -7,6 +7,7 @@ interface RawCellProps {
   theme: Theme;
   classNames?: ClassNames;
   styles?: Styles;
+  isActive?: boolean;
 }
 
 export const RawCell = ({
@@ -14,6 +15,7 @@ export const RawCell = ({
   theme,
   classNames,
   styles,
+  isActive = false,
 }: RawCellProps) => {
   const content = Array.isArray(cell.source) ? cell.source.join('') : cell.source;
   
@@ -30,13 +32,15 @@ export const RawCell = ({
           getStyle(styles, 'sourceCode'),
           { 
             backgroundColor: theme.colors.backgroundAlt,
-            border: `1px solid ${theme.colors.border}`,
+            padding: isActive ? '0 4px' : '1px 5px',
+            border: isActive ? `1px solid ${theme.colors.border}` : 'none',
+            boxSizing: 'border-box' as const,
           }
         )}
       >
-        <pre style={{ margin: 0, overflow: 'auto' }}>
-          <code>{content}</code>
-        </pre>
+        <span style={{ margin: 0, overflow: 'auto' }}>
+          {content}
+        </span>
       </div>
     </div>
   );

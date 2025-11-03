@@ -3,12 +3,12 @@ import commonjs from '@rollup/plugin-commonjs';
 import typescript from '@rollup/plugin-typescript';
 import dts from 'rollup-plugin-dts';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
+import postcss from 'rollup-plugin-postcss';
 import { readFileSync } from 'fs';
 
 const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
 export default [
-  // ESM build
   {
     input: 'src/index.ts',
     output: [
@@ -20,8 +20,16 @@ export default [
     ],
     plugins: [
       peerDepsExternal(),
-      resolve(),
+      resolve({
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        preferBuiltins: false,
+      }),
       commonjs(),
+      postcss({
+        extract: false,
+        inject: true,
+        minimize: true
+      }),
       typescript({ 
         tsconfig: './tsconfig.build.json',
         declaration: true,
@@ -29,9 +37,8 @@ export default [
         exclude: ['**/*.test.tsx', '**/*.test.ts', '**/*.stories.tsx']
       }),
     ],
-    external: ['react', 'react-dom'],
+    external: ['react', 'react-dom', /^@jupyterlab\//],
   },
-  // CJS build
   {
     input: 'src/index.ts',
     output: [
@@ -43,17 +50,24 @@ export default [
     ],
     plugins: [
       peerDepsExternal(),
-      resolve(),
+      resolve({
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        preferBuiltins: false,
+      }),
       commonjs(),
+      postcss({
+        extract: false,
+        inject: true,
+        minimize: true
+      }),
       typescript({ 
         tsconfig: './tsconfig.build.json',
         declaration: false,
         exclude: ['**/*.test.tsx', '**/*.test.ts', '**/*.stories.tsx']
       }),
     ],
-    external: ['react', 'react-dom'],
+    external: ['react', 'react-dom', /^@jupyterlab\//],
   },
-  // Type definitions
   {
     input: 'dist/esm/index.d.ts',
     output: [{ file: 'dist/index.d.ts', format: 'esm' }],

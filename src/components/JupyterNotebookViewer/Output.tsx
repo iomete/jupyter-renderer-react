@@ -33,6 +33,7 @@ export const Output = ({
 }: OutputProps) => {
   const baseOutputStyle = mergeStyles(
     applyThemeStyles(theme, 'output'),
+    { marginTop: '10px' },
     getStyle(styles, 'output')
   );
   
@@ -86,15 +87,17 @@ export const Output = ({
           getStyle(styles, 'outputError')
         )}
       >
-        <div
-          className={getClassName(classNames, 'errorName')}
-          style={mergeStyles(
-            { fontWeight: 'bold', marginBottom: theme.spacing.xs },
-            getStyle(styles, 'errorName')
-          )}
-        >
-          {output.ename}: {output.evalue}
-        </div>
+        {(output.ename || output.evalue) && (
+          <div
+            className={getClassName(classNames, 'errorName')}
+            style={mergeStyles(
+              { fontWeight: 'bold', marginBottom: theme.spacing.xs },
+              getStyle(styles, 'errorName')
+            )}
+          >
+            {output.ename}{output.ename && output.evalue ? ': ' : ''}{output.evalue}
+          </div>
+        )}
         {output.traceback.length > 0 && (
           <div
             className={getClassName(classNames, 'errorTraceback')}
@@ -107,9 +110,12 @@ export const Output = ({
               getStyle(styles, 'errorTraceback')
             )}
           >
-            <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
-              {output.traceback.map(line => ansiToHtml(line)).join('\n')}
-            </pre>
+            <pre 
+              style={{ margin: 0, whiteSpace: 'pre-wrap' }}
+              dangerouslySetInnerHTML={{ 
+                __html: output.traceback.map(line => ansiToHtml(line)).join('\n') 
+              }}
+            />
           </div>
         )}
       </div>
@@ -225,9 +231,10 @@ export const Output = ({
               getStyle(styles, 'outputText')
             )}
           >
-            <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
-              {text}
-            </pre>
+            <pre 
+              style={{ margin: 0, whiteSpace: 'pre-wrap' }}
+              dangerouslySetInnerHTML={{ __html: ansiToHtml(text) }}
+            />
           </div>
         );
       }

@@ -1,0 +1,142 @@
+/*
+ * JupyterLab Light Theme CSS Variables
+ * Extracted from @jupyterlab/theme-light-extension
+ * 
+ * These variables provide authentic JupyterLab light theme styling
+ * for consistent visual integration with JupyterLab ecosystem.
+ */
+
+:root,
+.jp-theme-light {
+  /* === BORDERS === */
+  --jp-border-width: 1px;
+  --jp-border-color0: #bdbdbd;
+  --jp-border-color1: #bdbdbd;
+  --jp-border-color2: #e0e0e0;
+  --jp-border-color3: #eee;
+  --jp-border-radius: 2px;
+
+  /* === LAYOUT COLORS === */
+  --jp-layout-color0: white;
+  --jp-layout-color1: white;
+  --jp-layout-color2: #eee;
+  --jp-layout-color3: #bdbdbd;
+  --jp-layout-color4: #757575;
+
+  /* === INVERSE LAYOUT === */
+  --jp-inverse-layout-color0: #111;
+  --jp-inverse-layout-color1: #212121;
+  --jp-inverse-layout-color2: #424242;
+  --jp-inverse-layout-color3: #616161;
+  --jp-inverse-layout-color4: #757575;
+
+  /* === BRAND COLORS === */
+  --jp-brand-color0: #0d47a1;
+  --jp-brand-color1: #1976d2;
+  --jp-brand-color2: #64b5f6;
+  --jp-brand-color3: #bbdefb;
+  --jp-brand-color4: #e3f2fd;
+
+  /* === UI FONTS === */
+  --jp-ui-font-size0: 0.83333em;
+  --jp-ui-font-size1: 13px;
+  --jp-ui-font-size2: 1.2em;
+  --jp-ui-font-size3: 1.44em;
+  --jp-ui-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    'Segoe UI Symbol';
+  --jp-ui-font-color0: rgba(0, 0, 0, 1);
+  --jp-ui-font-color1: rgba(0, 0, 0, 0.87);
+  --jp-ui-font-color2: rgba(0, 0, 0, 0.54);
+  --jp-ui-font-color3: rgba(0, 0, 0, 0.38);
+
+  /* === CONTENT FONTS === */
+  --jp-content-font-size0: 0.83333em;
+  --jp-content-font-size1: 14px;
+  --jp-content-font-size2: 1.2em;
+  --jp-content-font-size3: 1.44em;
+  --jp-content-font-color0: rgba(0, 0, 0, 1);
+  --jp-content-font-color1: rgba(0, 0, 0, 0.87);
+  --jp-content-font-color2: rgba(0, 0, 0, 0.54);
+  --jp-content-font-color3: rgba(0, 0, 0, 0.38);
+  --jp-content-font-family: system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol';
+
+  /* === CODE FONTS === */
+  --jp-code-font-size: 13px;
+  --jp-code-line-height: 1.3077;
+  --jp-code-padding: 5px;
+  --jp-code-font-family: Menlo, Consolas, 'DejaVu Sans Mono', monospace;
+
+  /* === CELL SPECIFIC STYLES === */
+  --jp-cell-padding: 5px;
+  --jp-cell-collapser-width: 8px;
+  --jp-cell-collapser-min-height: 20px;
+  --jp-cell-editor-background: #f5f5f5;
+  --jp-cell-editor-border-color: #e0e0e0;
+  --jp-cell-editor-box-shadow: inset 0 0 2px #64b5f6;
+  --jp-cell-editor-active-background: var(--jp-layout-color0);
+  --jp-cell-editor-active-border-color: var(--jp-brand-color1);
+  --jp-cell-prompt-width: 36px;
+  --jp-cell-prompt-font-family: var(--jp-code-font-family);
+  --jp-cell-prompt-opacity: 1;
+  --jp-cell-prompt-not-active-opacity: 0.5;
+  --jp-cell-prompt-not-active-font-color: #616161;
+  --jp-cell-inprompt-font-color: #307fc1;
+  --jp-cell-outprompt-font-color: #bf5b3d;
+
+  /* === NOTEBOOK SPECIFIC === */
+  --jp-notebook-padding: 10px;
+  --jp-notebook-select-background: var(--jp-layout-color1);
+  --jp-notebook-multiselected-color: #e3f2fd;
+
+  /* === SYNTAX HIGHLIGHTING (CODE MIRROR) === */
+  --jp-mirror-editor-keyword-color: #008000;
+  --jp-mirror-editor-atom-color: #88f;
+  --jp-mirror-editor-number-color: #080;
+  --jp-mirror-editor-def-color: #00f;
+  --jp-mirror-editor-variable-color: #212121;
+  --jp-mirror-editor-variable-2-color: rgb(0, 54, 109);
+  --jp-mirror-editor-variable-3-color: #085;
+  --jp-mirror-editor-punctuation-color: #05a;
+  --jp-mirror-editor-property-color: #05a;
+  --jp-mirror-editor-operator-color: #7800c2;
+  --jp-mirror-editor-comment-color: #408080;
+  --jp-mirror-editor-string-color: #ba2121;
+  --jp-mirror-editor-string-2-color: #708;
+  --jp-mirror-editor-meta-color: #a2f;
+  --jp-mirror-editor-qualifier-color: #555;
+  --jp-mirror-editor-builtin-color: #008000;
+  --jp-mirror-editor-bracket-color: #997;
+  --jp-mirror-editor-tag-color: #170;
+  --jp-mirror-editor-attribute-color: #00c;
+  --jp-mirror-editor-header-color: blue;
+  --jp-mirror-editor-quote-color: #090;
+  --jp-mirror-editor-link-color: #00c;
+  --jp-mirror-editor-error-color: #f00;
+  --jp-mirror-editor-hr-color: #999;
+
+  /* === EDITOR STYLES === */
+  --jp-editor-selected-background: #d9d9d9;
+  --jp-editor-selected-focused-background: #d7d4f0;
+  --jp-editor-cursor-color: var(--jp-ui-font-color0);
+
+  /* === STATE COLORS === */
+  --jp-warn-color0: #e65100;
+  --jp-warn-color1: #f57c00;
+  --jp-warn-color2: #ffb74d;
+  --jp-warn-color3: #ffe0b2;
+  --jp-error-color0: #b71c1c;
+  --jp-error-color1: #d32f2f;
+  --jp-error-color2: #e57373;
+  --jp-error-color3: #ffcdd2;
+  --jp-success-color0: #1b5e20;
+  --jp-success-color1: #388e3c;
+  --jp-success-color2: #81c784;
+  --jp-success-color3: #c8e6c9;
+  --jp-info-color0: #006064;
+  --jp-info-color1: #0097a7;
+  --jp-info-color2: #4dd0e1;
+  --jp-info-color3: #b2ebf2;
+}

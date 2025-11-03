@@ -1,0 +1,138 @@
+.jupyter-notebook-viewer-cell {
+  display: flex;
+  gap: 4px;
+  margin: 10px 0;
+  align-items: stretch;
+}
+
+.jupyter-notebook-viewer-cell-identifier-wrapper {
+  width: var(--jp-cell-collapser-width, 8px);
+  min-width: var(--jp-cell-collapser-width, 8px);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  min-height: var(--jp-cell-collapser-min-height, 20px);
+}
+
+.jupyter-notebook-viewer-cell-identifier {
+  height: 100%;
+  background-color: var(--jp-brand-color1, #1976d2);
+  border-radius: var(--jp-border-radius, 2px);
+  cursor: pointer;
+  width: 100%;
+}
+
+.jupyter-notebook-viewer-cell-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  gap: 4px;
+  position: relative;
+  transition: border-left-color 0.15s ease;
+}
+
+/* Cell type hover effects */
+.jupyter-notebook-viewer-cell-content.cell-code:hover {
+  border-left-color: var(--jp-brand-color2, #42a5f5);
+}
+
+.jupyter-notebook-viewer-cell-content.cell-markdown:hover {
+  border-left-color: var(--jp-success-color2, #66bb6a);
+}
+
+/* Cell number styling */
+.jupyter-notebook-viewer-cell-number {
+  width: var(--jp-cell-prompt-width, 36px);
+  text-align: right;
+  font-size: var(--jp-code-font-size, 13px);
+  font-family: var(
+    --jp-cell-prompt-font-family,
+    var(--jp-code-font-family, Menlo, Consolas, "DejaVu Sans Mono", monospace)
+  );
+  padding-right: 8px;
+  flex-shrink: 0;
+}
+
+.jupyter-notebook-viewer-cell-number.clickable {
+  cursor: pointer;
+}
+
+/* Cell body */
+.jupyter-notebook-viewer-cell-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Collapsed cell preview */
+.jupyter-notebook-viewer-cell-collapsed-preview {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.jupyter-notebook-viewer-cell-collapsed-content {
+  width: 50%;
+  max-width: 50%;
+  padding: var(--jp-cell-padding, 5px) 12px;
+  background-color: var(--jp-cell-editor-background, #f5f5f5);
+  border: var(--jp-border-width, 1px) solid var(--jp-border-color0, #e0e0e0);
+  border-radius: var(--jp-border-radius, 2px);
+  cursor: pointer;
+  color: var(--jp-content-font-color2, rgba(0, 0, 0, 0.54));
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Collapse button for non-code cells */
+.jupyter-notebook-viewer-cell-collapse-button {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.jupyter-notebook-viewer-cell p {
+  margin: 4px 0;
+}
+
+.jupyter-notebook-viewer-cell h1 {
+  font-size: 2rem;
+}
+
+.jupyter-notebook-viewer-cell h2 {
+  font-size: 1.5rem;
+}
+
+.jupyter-notebook-viewer-cell h3 {
+  font-size: 1.17rem;
+}
+
+.jupyter-notebook-viewer-cell h4 {
+  font-size: 1rem;
+}
+
+.jupyter-notebook-viewer-cell h5 {
+  font-size: 0.83rem;
+}
+
+.jupyter-notebook-viewer-cell h6 {
+  font-size: 0.67rem;
+}
+
+.jupyter-notebook-viewer-cell h1,
+.jupyter-notebook-viewer-cell h2,
+.jupyter-notebook-viewer-cell h3,
+.jupyter-notebook-viewer-cell h4,
+.jupyter-notebook-viewer-cell h5 {
+  margin: 4px 0;
+}

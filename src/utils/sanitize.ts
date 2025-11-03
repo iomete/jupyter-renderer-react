@@ -20,6 +20,7 @@ const ALLOWED_ATTRIBUTES: Record<string, string[]> = {
   img: ['src', 'alt', 'width', 'height', 'title'],
   td: ['colspan', 'rowspan'],
   th: ['colspan', 'rowspan'],
+  span: ['style'], // Allow style attribute for ANSI color spans
   '*': ['class', 'id'], // Allow class and id on all tags
 };
 
@@ -74,7 +75,7 @@ export function sanitizeHtml(
   sanitized = sanitized.replace(tagRegex, '');
   
   // Clean attributes
-  sanitized = sanitized.replace(/<(\w+)([^>]*)>/gi, (match, tagName, attributes) => {
+  sanitized = sanitized.replace(/<(\w+)([^>]*)>/gi, (_, tagName, attributes) => {
     const tag = tagName.toLowerCase();
     
     if (!allowedTags.includes(tag)) {
@@ -83,7 +84,7 @@ export function sanitizeHtml(
     
     // Parse and filter attributes
     const cleanedAttrs = attributes.replace(/(\w+)\s*=\s*["']([^"']+)["']/gi, 
-      (attrMatch: string, attrName: string, attrValue: string) => {
+      (_: string, attrName: string, attrValue: string) => {
         const attr = attrName.toLowerCase();
         const allowedForTag = [...(allowedAttrs[tag] || []), ...(allowedAttrs['*'] || [])];
         
@@ -122,35 +123,63 @@ export function escapeHtml(text: string): string {
  * Convert ANSI escape codes to HTML
  */
 export function ansiToHtml(text: string): string {
-  // Basic ANSI to HTML conversion
+  // ANSI color mapping with proper CSS colors
   const ansiColors: Record<string, string> = {
-    '30': 'black',
-    '31': 'red',
-    '32': 'green',
-    '33': 'yellow',
-    '34': 'blue',
-    '35': 'magenta',
-    '36': 'cyan',
-    '37': 'white',
-    '90': 'gray',
-    '91': 'lightred',
-    '92': 'lightgreen',
-    '93': 'lightyellow',
-    '94': 'lightblue',
-    '95': 'lightmagenta',
-    '96': 'lightcyan',
-    '97': 'white',
+    // Standard colors (30-37)
+    '30': '#000000', // black
+    '31': '#cd3131', // red
+    '32': '#00A250', // green  
+    '33': '#e5e510', // yellow
+    '34': '#0451a5', // blue
+    '35': '#bc05bc', // magenta
+    '36': '#0598bc', // cyan
+    '37': '#e5e5e5', // white
+    
+    // Bright colors (90-97)
+    '90': '#666666', // bright black (gray)
+    '91': '#f14c4c', // bright red
+    '92': '#007427', // bright green (for bold)
+    '93': '#f5f543', // bright yellow
+    '94': '#3b8eea', // bright blue
+    '95': '#d670d6', // bright magenta
+    '96': '#29b8db', // bright cyan
+    '97': '#ffffff', // bright white
   };
   
-  // Remove ANSI escape codes and convert to spans with colors
-  return text.replace(/\x1b\[(\d+)m/g, (match, code) => {
-    const color = ansiColors[code];
-    if (color) {
-      return `<span style="color: ${color}">`;
+  let result = text;
+  let openTags = 0;
+  
+  // Handle various ANSI escape sequence formats:
+  // \x1b[0;31m, \x1b[31m, [0;31m, [31m, etc.
+  result = result.replace(/(?:\x1b\[|\[)([0-9;]+)m/g, (_, codes) => {
+    const codeList = codes.split(';');
+    let html = '';
+    
+    for (const code of codeList) {
+      if (code === '0') {
+        // Reset - close all open spans
+        html += '</span>'.repeat(openTags);
+        openTags = 0;
+      } else if (code === '1') {
+        // Bold
+        html += '<span style="font-weight: bold;">';
+        openTags++;
+      } else if (code === '4') {
+        // Underline
+        html += '<span style="text-decoration: underline;">';
+        openTags++;
+      } else if (ansiColors[code]) {
+        // Color
+        html += `<span style="color: ${ansiColors[code]};">`;
+        openTags++;
+      }
     }
-    if (code === '0') {
-      return '</span>';
-    }
-    return '';
+    
+    return html;
   });
+  
+  // Close any remaining open tags
+  result += '</span>'.repeat(openTags);
+  
+  return result;
 }

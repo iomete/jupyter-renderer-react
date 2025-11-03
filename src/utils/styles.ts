@@ -65,12 +65,10 @@ export function applyThemeStyles(theme: Theme, component: string): CSSProperties
       fontSize: theme.fontSize.base,
     },
     cell: {
-      borderBottom: `1px solid ${theme.colors.border}`,
       marginBottom: theme.spacing.cell,
     },
     cellCode: {
-      backgroundColor: theme.colors.backgroundAlt,
-      borderRadius: theme.borderRadius.md,
+      backgroundColor: theme.colors.codeBg,
       padding: theme.spacing.cellPadding,
     },
     cellMarkdown: {
@@ -81,7 +79,7 @@ export function applyThemeStyles(theme: Theme, component: string): CSSProperties
       color: theme.colors.textSecondary,
       fontSize: theme.fontSize.sm,
       fontFamily: theme.fonts.code,
-      minWidth: '4ch',
+      minWidth: '6ch',
       textAlign: 'left',
       userSelect: 'none',
     },
@@ -91,8 +89,8 @@ export function applyThemeStyles(theme: Theme, component: string): CSSProperties
       fontFamily: theme.fonts.code,
       fontSize: theme.fontSize.code,
       padding: theme.spacing.sm,
-      borderRadius: theme.borderRadius.sm,
       overflowX: 'auto',
+      border: 'none',
     },
     sourceMarkdown: {
       fontFamily: theme.fonts.markdown,
@@ -100,9 +98,7 @@ export function applyThemeStyles(theme: Theme, component: string): CSSProperties
     },
     output: {
       padding: theme.spacing.outputPadding,
-      marginTop: theme.spacing.sm,
       backgroundColor: theme.colors.outputBg,
-      borderRadius: theme.borderRadius.sm,
     },
     outputText: {
       fontFamily: theme.fonts.code,
@@ -118,20 +114,8 @@ export function applyThemeStyles(theme: Theme, component: string): CSSProperties
     outputError: {
       backgroundColor: theme.colors.errorBg,
       color: theme.colors.errorText,
-      border: `1px solid ${theme.colors.errorBorder}`,
-      borderRadius: theme.borderRadius.md,
-      padding: theme.spacing.md,
-    },
-    copyButton: {
-      backgroundColor: theme.colors.buttonBg,
-      color: theme.colors.buttonText,
-      border: 'none',
-      borderRadius: theme.borderRadius.sm,
-      padding: `${theme.spacing.xs} ${theme.spacing.sm}`,
-      fontSize: theme.fontSize.sm,
-      fontFamily: theme.fonts.base,
-      cursor: 'pointer',
-      transition: 'background-color 0.2s ease',
+      padding: theme.spacing.sm,
+      fontFamily: theme.fonts.code,
     },
   };
   

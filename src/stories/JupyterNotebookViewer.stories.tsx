@@ -1,10 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { JupiterParser } from "../components/JupiterParser";
+import { JupiterNotebookViewer } from "../components/JupyterNotebookViewer";
 import type { JupyterNotebook } from "../types/notebook";
 
-const meta: Meta<typeof JupiterParser> = {
-  title: "Components/JupiterParser/Examples",
-  component: JupiterParser,
+import "../themes/jupyterlab-light.css";
+import "../themes/jupyterlab-dark.css";
+
+const meta: Meta<typeof JupiterNotebookViewer> = {
+  title: "Components/JupyterNotebookViewer",
+  component: JupiterNotebookViewer,
   parameters: {
     layout: "padded",
   },
@@ -23,14 +26,11 @@ const meta: Meta<typeof JupiterParser> = {
     collapsible: {
       control: { type: "boolean" },
     },
-    copyable: {
-      control: { type: "boolean" },
-    },
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof JupiterParser>;
+type Story = StoryObj<typeof JupiterNotebookViewer>;
 
 const simplePrintNotebook: JupyterNotebook = {
   nbformat: 4,
@@ -62,6 +62,102 @@ const simplePrintNotebook: JupyterNotebook = {
           output_type: "stream",
           name: "stdout",
           text: "Hello, Jupyter!\n",
+        },
+      ],
+    },
+  ],
+};
+
+const basicPythonNotebook: JupyterNotebook = {
+  nbformat: 4,
+  nbformat_minor: 4,
+  metadata: {
+    kernelspec: {
+      display_name: "Python 3",
+      language: "python",
+      name: "python3",
+    },
+    language_info: {
+      name: "python",
+      version: "3.9.6",
+    },
+  },
+  cells: [
+    {
+      cell_type: "markdown",
+      metadata: {},
+      source: "# Basic Python Examples\n\nThis notebook demonstrates basic Python operations and outputs.",
+    },
+    {
+      cell_type: "code",
+      execution_count: 1,
+      metadata: {},
+      source: "# Variable assignments\nname = \"Python\"\nversion = 3.9\nprint(f\"Hello from {name} {version}!\")",
+      outputs: [
+        {
+          output_type: "stream",
+          name: "stdout",
+          text: "Hello from Python 3.9!\n",
+        },
+      ],
+    },
+    {
+      cell_type: "code",
+      execution_count: 2,
+      metadata: {},
+      source: "# Multiple print statements\nfor i in range(5):\n    print(f\"Iteration {i}\")",
+      outputs: [
+        {
+          output_type: "stream",
+          name: "stdout",
+          text: "Iteration 0\nIteration 1\nIteration 2\nIteration 3\nIteration 4\n",
+        },
+      ],
+    },
+    {
+      cell_type: "markdown",
+      metadata: {},
+      source: "## Working with Lists",
+    },
+    {
+      cell_type: "code",
+      execution_count: 3,
+      metadata: {},
+      source: "# List operations\nfruits = ['apple', 'banana', 'orange', 'grape']\nprint(\"Fruits:\", fruits)\nprint(\"First fruit:\", fruits[0])\nprint(\"Number of fruits:\", len(fruits))",
+      outputs: [
+        {
+          output_type: "stream",
+          name: "stdout",
+          text: "Fruits: ['apple', 'banana', 'orange', 'grape']\nFirst fruit: apple\nNumber of fruits: 4\n",
+        },
+      ],
+    },
+    {
+      cell_type: "code",
+      execution_count: 4,
+      metadata: {},
+      source: "# Error example\ntry:\n    result = 10 / 0\nexcept ZeroDivisionError as e:\n    print(f\"Error caught: {e}\")",
+      outputs: [
+        {
+          output_type: "stream",
+          name: "stdout",
+          text: "Error caught: division by zero\n",
+        },
+      ],
+    },
+    {
+      cell_type: "code",
+      execution_count: 5,
+      metadata: {},
+      source: "# Return value example\ndef calculate_sum(a, b):\n    return a + b\n\nresult = calculate_sum(15, 25)\nresult",
+      outputs: [
+        {
+          output_type: "execute_result",
+          data: {
+            "text/plain": "40",
+          },
+          metadata: {},
+          execution_count: 5,
         },
       ],
     },
@@ -383,7 +479,16 @@ export const SimplePrint: Story = {
     showCellNumbers: true,
     showOutputs: true,
     collapsible: false,
-    copyable: true,
+  },
+};
+
+export const BasicPythonExamples: Story = {
+  args: {
+    notebook: basicPythonNotebook,
+    theme: "light",
+    showCellNumbers: true,
+    showOutputs: true,
+    collapsible: true,
   },
 };
 
@@ -394,7 +499,6 @@ export const SQLDatabaseQuery: Story = {
     showCellNumbers: true,
     showOutputs: true,
     collapsible: false,
-    copyable: true,
   },
 };
 
@@ -405,6 +509,72 @@ export const DataVisualization: Story = {
     showCellNumbers: true,
     showOutputs: true,
     collapsible: false,
-    copyable: true,
   },
 };
+
+// Example using file path (would work with actual URLs)
+export const FromFilePath: Story = {
+  args: {
+    notebook: { filePath: "https://raw.githubusercontent.com/jupyter/notebook/main/docs/source/examples/Notebook/Notebook%20Basics.ipynb" },
+    theme: "light",
+    showCellNumbers: true,
+    showOutputs: true,
+    collapsible: true,
+    onFileLoad: (notebook) => {
+      console.log("Successfully loaded notebook:", notebook);
+    },
+    onFileError: (error) => {
+      console.error("Failed to load notebook:", error);
+    },
+  },
+};
+
+// Example with invalid file path to show error handling
+export const InvalidFilePath: Story = {
+  args: {
+    notebook: { filePath: "https://example.com/nonexistent.ipynb" },
+    theme: "light",
+    showCellNumbers: true,
+    showOutputs: true,
+    collapsible: false,
+    onFileError: (error) => {
+      console.error("Expected error:", error.message);
+    },
+  },
+};
+
+// Example showing JSON string input
+export const FromJSONString: Story = {
+  args: {
+    notebook: JSON.stringify(simplePrintNotebook),
+    theme: "light",
+    showCellNumbers: true,
+    showOutputs: true,
+    collapsible: false,
+  },
+};
+
+// Example using local test file
+export const DemoExampleFile: Story = {
+  args: {
+    notebook: { filePath: "/demo-example.ipynb" },
+    theme: "light",
+    showCellNumbers: true,
+    showOutputs: true,
+    collapsible: true,
+    onFileLoad: (notebook) => {
+      console.log("Successfully loaded local test notebook:", notebook);
+    },
+    onFileError: (error) => {
+      console.error("Failed to load local test file:", error);
+    },
+  },
+};
+
+export const Workshop: Story = {
+  args: {
+    notebook: {
+      filePath: "/second_workshop.ipynb"
+    }
+  }
+}

@@ -1,35 +1,35 @@
 import { ReactNode, createElement } from 'react';
 
-// VS Code Dark Modern Python syntax highlighting colors
 export const pythonSyntaxColorsDark = {
-  keyword: '#C586C0',           // purple - def, if, for, etc.
-  string: '#CE9178',            // orange - strings
-  comment: '#6A9955',           // green - comments
-  number: '#B5CEA8',            // light green - numbers
-  operator: '#D4D4D4',          // white - +, -, =, etc.
-  function: '#DCDCAA',          // yellow - function names
-  variable: '#9CDCFE',          // light blue - variables
-  builtin: '#4EC9B0',           // cyan - print, len, etc.
-  decorator: '#4EC9B0',         // cyan - @decorator
-  className: '#4EC9B0',         // cyan - class names
-  default: '#D4D4D4',           // white - default text
-  background: '#1E1E1E',        // dark background
+  keyword: 'var(--jp-mirror-editor-keyword-color, #4caf50)',
+  string: 'var(--jp-mirror-editor-string-color, #ff7070)',
+  comment: 'var(--jp-mirror-editor-comment-color, #408080)',
+  number: 'var(--jp-mirror-editor-number-color, #66bb6a)',
+  operator: 'var(--jp-mirror-editor-operator-color, #d48fff)',
+  function: 'var(--jp-mirror-editor-def-color, #1e88e5)',
+  variable: 'var(--jp-mirror-editor-variable-color, #e0e0e0)',
+  builtin: 'var(--jp-mirror-editor-builtin-color, #43a047)',
+  decorator: 'var(--jp-mirror-editor-builtin-color, #43a047)',
+  className: 'var(--jp-mirror-editor-builtin-color, #43a047)',
+  default: 'var(--jp-content-font-color0, rgba(255, 255, 255, 1))',
+  background: 'var(--jp-cell-editor-background, #212121)',
+  border: 'var(--jp-border-color0, #616161)',
 };
 
-// VS Code Light Modern Python syntax highlighting colors
 export const pythonSyntaxColorsLight = {
-  keyword: '#AF00DB',           // purple - def, if, for, etc.
-  string: '#A31515',            // red - strings
-  comment: '#008000',           // green - comments
-  number: '#098658',            // dark green - numbers
-  operator: '#000000',          // black - +, -, =, etc.
-  function: '#795E26',          // brown - function names
-  variable: '#001080',          // dark blue - variables
-  builtin: '#267F99',           // teal - print, len, etc.
-  decorator: '#267F99',         // teal - @decorator
-  className: '#267F99',         // teal - class names
-  default: '#000000',           // black - default text
-  background: '#FFFFFF',        // light background
+  keyword: 'var(--jp-mirror-editor-keyword-color, #008000)',
+  string: 'var(--jp-mirror-editor-string-color, #ba2121)',
+  comment: 'var(--jp-mirror-editor-comment-color, #408080)',
+  number: 'var(--jp-mirror-editor-number-color, #080)',
+  operator: 'var(--jp-mirror-editor-operator-color, #7800c2)',
+  function: 'var(--jp-mirror-editor-def-color, #00f)',
+  variable: 'var(--jp-mirror-editor-variable-color, #212121)',
+  builtin: 'var(--jp-mirror-editor-builtin-color, #008000)',
+  decorator: 'var(--jp-mirror-editor-builtin-color, #008000)',
+  className: 'var(--jp-mirror-editor-builtin-color, #008000)',
+  default: 'var(--jp-content-font-color0, rgba(0, 0, 0, 1))',
+  background: 'var(--jp-cell-editor-background, #f5f5f5)',
+  border: 'var(--jp-border-color0, #bdbdbd)',
 };
 
 // Python keywords

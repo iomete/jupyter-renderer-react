@@ -154,3 +154,84 @@ export function countCellsByType(notebook: JupyterNotebook): {
   
   return counts;
 }
+
+/**
+ * Parse notebook from file content with enhanced error messages
+ * @param content - File content as string
+ * @param filePath - Optional file path for better error messages
+ * @returns Parsed notebook
+ * @throws Error with file-specific error messages
+ */
+export function parseNotebookFromFile(content: string, filePath?: string): JupyterNotebook {
+  const fileContext = filePath ? ` in file "${filePath}"` : '';
+  
+  try {
+    return parseNotebook(content);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw new Error(`Invalid notebook format${fileContext}: ${error.message}`);
+    }
+    throw new Error(`Unknown error parsing notebook${fileContext}`);
+  }
+}
+
+/**
+ * Validate notebook content before parsing
+ * @param content - Content to validate
+ * @returns Validation result with details
+ */
+export function validateNotebookContent(content: any): {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+} {
+  const result = {
+    isValid: true,
+    errors: [] as string[],
+    warnings: [] as string[],
+  };
+
+  try {
+    parseNotebook(content);
+  } catch (error) {
+    result.isValid = false;
+    if (error instanceof Error) {
+      result.errors.push(error.message);
+    } else {
+      result.errors.push('Unknown validation error');
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Get notebook metadata summary
+ */
+export function getNotebookSummary(notebook: JupyterNotebook): {
+  version: string;
+  language: string;
+  cellCounts: ReturnType<typeof countCellsByType>;
+  kernelInfo?: {
+    name?: string;
+    displayName?: string;
+    language?: string;
+  };
+} {
+  const cellCounts = countCellsByType(notebook);
+  const version = `${notebook.nbformat}.${notebook.nbformat_minor}`;
+  const language = getNotebookLanguage(notebook);
+  
+  const kernelInfo = notebook.metadata?.kernelspec ? {
+    name: notebook.metadata.kernelspec.name,
+    displayName: notebook.metadata.kernelspec.display_name,
+    language: notebook.metadata.kernelspec.language,
+  } : undefined;
+
+  return {
+    version,
+    language,
+    cellCounts,
+    kernelInfo,
+  };
+}

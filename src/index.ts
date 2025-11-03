@@ -1,13 +1,11 @@
 // Main entry point for the library
-export { ExampleComponent } from './components/ExampleComponent';
-export type { ExampleComponentProps } from './components/ExampleComponent';
 
 // Jupiter Parser components
-export { JupiterParser } from './components/JupiterParser';
+export { JupiterNotebookViewer } from './components/JupyterNotebookViewer';
 
 // Types
 export type { 
-  JupiterParserProps,
+  JupiterNotebookViewerProps,
   ClassNames,
   Styles,
   Theme,
@@ -35,8 +33,18 @@ export {
   parseNotebook, 
   isValidNotebook, 
   getNotebookLanguage, 
-  countCellsByType 
+  countCellsByType,
+  parseNotebookFromFile,
+  validateNotebookContent,
+  getNotebookSummary
 } from './utils/parseNotebook';
+
+export {
+  loadNotebookFromPath,
+  isNotebookFilePath,
+  getNotebookInputType,
+  validateFilePath
+} from './utils/fileLoader';
 
 export {
   isCodeCell,
