@@ -1,6 +1,6 @@
 {
   "name": "@iomete/jupyter-renderer-react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React component library for IOMETE Jupiter parser",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
