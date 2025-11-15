@@ -32,6 +32,22 @@ const meta: Meta<typeof JupiterNotebookViewer> = {
 export default meta;
 type Story = StoryObj<typeof JupiterNotebookViewer>;
 
+const simplePrintV3Notebook: JupyterNotebook = {
+  nbformat: 3,
+  nbformat_minor: 0,
+  metadata: {
+    name: "Simple v3 Notebook"
+  },
+  cells: [
+    {
+      cell_type: "code",
+      metadata: {},
+      source: 'print("Hello World")',
+      outputs: []
+    }
+  ]
+} as any;
+
 const simplePrintNotebook: JupyterNotebook = {
   nbformat: 4,
   nbformat_minor: 4,
@@ -578,3 +594,17 @@ export const Workshop: Story = {
     }
   }
 }
+
+// Example with Jupyter v3 notebook to show error handling
+export const Version3NotSupported: Story = {
+  args: {
+    notebook: simplePrintV3Notebook,
+    theme: "light",
+    showCellNumbers: true,
+    showOutputs: true,
+    collapsible: false,
+    onError: (error: Error) => {
+      console.error("Expected v3 error:", error.message);
+    },
+  },
+};

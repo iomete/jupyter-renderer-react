@@ -9,11 +9,13 @@ import { JupyterNotebook } from '../types/notebook';
 export function parseNotebook(notebook: string | JupyterNotebook): JupyterNotebook {
   let parsed: any;
   
-  // Parse if string
   if (typeof notebook === 'string') {
     try {
       parsed = JSON.parse(notebook);
     } catch (error) {
+      if (error instanceof SyntaxError && error.message.includes('Unexpected end of JSON input')) {
+        throw new Error('Invalid notebook format: Empty or incomplete JSON');
+      }
       throw new Error(`Invalid JSON in notebook: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   } else {
@@ -27,6 +29,10 @@ export function parseNotebook(notebook: string | JupyterNotebook): JupyterNotebo
   
   if (typeof parsed.nbformat !== 'number') {
     throw new Error('Notebook must have a numeric nbformat field');
+  }
+  
+  if (parsed.nbformat === 3) {
+    throw new Error('v3 is not supported');
   }
   
   if (parsed.nbformat < 4) {
