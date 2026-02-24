@@ -36,3 +36,4 @@ storybook-static/
 *storybook.log
 
 /my-react-app
+.npmrc
