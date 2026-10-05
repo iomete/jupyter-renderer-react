@@ -45,8 +45,8 @@
   "license": "MIT",
   "type": "module",
   "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0"
+    "react": ">=16.8.6",
+    "react-dom": ">=16.8.6"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.9",
@@ -56,11 +56,11 @@
     "@storybook/addon-onboarding": "^10.6.1",
     "@storybook/react-vite": "^10.6.1",
     "@types/marked": "^5.0.2",
-    "@types/react": "^19.1.15",
-    "@types/react-dom": "^19.1.9",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^5.2.0",
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
     "rollup": "^4.64.0",
     "rollup-plugin-dts": "^6.5.1",
     "rollup-plugin-peer-deps-external": "^2.2.4",
