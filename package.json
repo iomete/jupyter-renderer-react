@@ -80,7 +80,7 @@
   },
   "homepage": "https://github.com/yourusername/iomete-jupiter-parser#readme",
   "dependencies": {
-    "@jupyterlab/codemirror": "^4.4.10",
+    "@jupyterlab/codemirror": "^4.5.11",
     "@jupyterlab/theme-dark-extension": "^4.4.10",
     "@jupyterlab/theme-light-extension": "^4.4.10",
     "@jupyterlab/ui-components": "^4.4.10",
