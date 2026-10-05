@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.9",
-    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-typescript": "^12.3.0",
     "@storybook/addon-docs": "^10.6.1",
     "@storybook/addon-onboarding": "^10.6.1",
