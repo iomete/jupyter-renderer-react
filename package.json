@@ -45,8 +45,8 @@
   "license": "MIT",
   "type": "module",
   "peerDependencies": {
-    "react": ">=18.3.1",
-    "react-dom": ">=18.3.1"
+    "react": ">=19.3.0",
+    "react-dom": ">=19.3.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^28.0.9",
