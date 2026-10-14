@@ -87,7 +87,7 @@
     "marked": "^16.4.2"
   },
   "overrides": {
-    "sanitize-html": "2.18.0",
+    "sanitize-html": "2.18.1",
     "postcss-selector-parser": "7.1.6"
   }
 }
