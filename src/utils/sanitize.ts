@@ -1,122 +1,66 @@
-/**
- * Simple HTML sanitizer for basic safety without external dependencies
- * This is a basic implementation - for production use, consider DOMPurify
- */
+import createDOMPurify, { type Config } from 'dompurify';
 
-// Allowed HTML tags for basic formatting
-const ALLOWED_TAGS = [
-  'p', 'div', 'span', 'br', 'hr',
-  'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-  'strong', 'b', 'em', 'i', 'u', 'code', 'pre',
-  'ul', 'ol', 'li',
-  'table', 'thead', 'tbody', 'tr', 'th', 'td',
-  'a', 'img',
-  'blockquote', 'sub', 'sup',
-];
+// Keep the policy independent of hooks or configuration installed by consumers.
+const purifier = createDOMPurify();
 
-// Allowed attributes for specific tags
-const ALLOWED_ATTRIBUTES: Record<string, string[]> = {
-  a: ['href', 'title', 'target', 'rel'],
-  img: ['src', 'alt', 'width', 'height', 'title'],
-  td: ['colspan', 'rowspan'],
-  th: ['colspan', 'rowspan'],
-  span: ['style'], // Allow style attribute for ANSI color spans
-  '*': ['class', 'id'], // Allow class and id on all tags
-};
-
-// Dangerous patterns to remove
-const DANGEROUS_PATTERNS = [
-  /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
-  /<link\b[^>]*>/gi,
-  /<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi,
-  /javascript:/gi,
-  /on\w+\s*=/gi, // Event handlers like onclick, onload, etc.
-  /data:text\/html/gi,
-  /vbscript:/gi,
-];
-
-/**
- * Basic HTML sanitizer
- * @param html - HTML string to sanitize
- * @param options - Sanitization options
- * @returns Sanitized HTML string
- */
-export function sanitizeHtml(
-  html: string,
-  options: {
-    allowedTags?: string[];
-    allowedAttributes?: Record<string, string[]>;
-    stripTags?: boolean;
-  } = {}
-): string {
-  if (!html) return '';
-  
-  // If stripTags is true, remove all HTML
-  if (options.stripTags) {
-    return html.replace(/<[^>]+>/g, '');
-  }
-  
-  let sanitized = html;
-  
-  // Remove dangerous patterns
-  for (const pattern of DANGEROUS_PATTERNS) {
-    sanitized = sanitized.replace(pattern, '');
-  }
-  
-  // Parse allowed tags and attributes
-  const allowedTags = options.allowedTags || ALLOWED_TAGS;
-  const allowedAttrs = options.allowedAttributes || ALLOWED_ATTRIBUTES;
-  
-  // Build regex for allowed tags
-  const tagNames = allowedTags.join('|');
-  const tagRegex = new RegExp(`<(/?)(?!(${tagNames})\\b)[^>]+>`, 'gi');
-  
-  // Remove disallowed tags
-  sanitized = sanitized.replace(tagRegex, '');
-  
-  // Clean attributes
-  sanitized = sanitized.replace(/<(\w+)([^>]*)>/gi, (_, tagName, attributes) => {
-    const tag = tagName.toLowerCase();
-    
-    if (!allowedTags.includes(tag)) {
-      return '';
-    }
-    
-    // Parse and filter attributes
-    const cleanedAttrs = attributes.replace(/(\w+)\s*=\s*["']([^"']+)["']/gi, 
-      (_: string, attrName: string, attrValue: string) => {
-        const attr = attrName.toLowerCase();
-        const allowedForTag = [...(allowedAttrs[tag] || []), ...(allowedAttrs['*'] || [])];
-        
-        if (!allowedForTag.includes(attr)) {
-          return '';
-        }
-        
-        // Additional checks for specific attributes
-        if (attr === 'href' || attr === 'src') {
-          // Ensure URLs are safe
-          if (attrValue.match(/^(javascript|vbscript|data:text\/html)/i)) {
-            return '';
-          }
-        }
-        
-        return `${attr}="${attrValue}"`;
+if (purifier.isSupported) {
+  purifier.addHook('afterSanitizeAttributes', (node) => {
+    // Marked emits disabled checkboxes for task lists. Retain their state while
+    // rejecting other controls and making even raw checkbox markup inert.
+    if (node.tagName === 'INPUT') {
+      if (node.getAttribute('type')?.toLowerCase() === 'checkbox') {
+        node.setAttribute('disabled', '');
+      } else {
+        node.remove();
       }
-    );
-    
-    return `<${tag}${cleanedAttrs ? ' ' + cleanedAttrs : ''}>`;
+    }
   });
-  
-  return sanitized;
 }
 
-/**
- * Escape HTML entities
- */
+function sanitize(markup: string, config: Config): string {
+  // DOMPurify needs a supported DOM. Never fall back to inserting raw markup.
+  if (!purifier.isSupported) return escapeHtml(markup);
+  return purifier.sanitize(markup, { ...config, RETURN_TRUSTED_TYPE: false });
+}
+
+/** HTML rendered in the parent document must not introduce styles or named nodes. */
+export function sanitizeMarkdownHtml(html: string): string {
+  return sanitize(html, {
+    USE_PROFILES: { html: true },
+    FORBID_TAGS: ['style', 'form', 'button', 'textarea', 'select', 'option'],
+    FORBID_ATTR: ['style', 'class', 'id', 'name', 'autofocus', 'form', 'formaction'],
+  });
+}
+
+/** Rich output HTML. Preserve plot/table styling; render only in an isolated frame. */
+export function sanitizeHtml(html: string): string {
+  return sanitize(html, {
+    // Notebook fragments often start with plot/table CSS. Keep it in the body
+    // of the isolated preview instead of losing it during document parsing.
+    FORCE_BODY: true,
+    USE_PROFILES: { html: true, svg: true, svgFilters: true, mathMl: true },
+    ADD_TAGS: ['use'],
+    FORBID_TAGS: ['form', 'input', 'button', 'textarea', 'select', 'option'],
+  });
+}
+
+/** SVG styling and internal references are safe within an image, never inline. */
+export function sanitizeSvg(svg: string): string {
+  return sanitize(svg, {
+    USE_PROFILES: { svg: true, svgFilters: true },
+    ADD_TAGS: ['use'],
+    FORBID_TAGS: ['foreignObject'],
+  });
+}
+
+/** Escape literal text without requiring a browser DOM. */
 export function escapeHtml(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /**
@@ -146,7 +90,8 @@ export function ansiToHtml(text: string): string {
     '97': '#ffffff', // bright white
   };
   
-  let result = text;
+  // Escape notebook text before adding our own, fixed ANSI formatting tags.
+  let result = escapeHtml(text);
   let openTags = 0;
   
   // Handle various ANSI escape sequence formats:
