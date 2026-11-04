@@ -179,6 +179,42 @@ The component provides robust error handling for different scenarios:
 />
 ```
 
+## Rendering untrusted notebooks
+
+Notebook previews render saved Markdown and outputs without executing notebook
+code. Treat shared, imported, and Git notebooks as untrusted input.
+
+The built-in renderers apply these protections:
+
+- Markdown is parsed with Marked, then sanitized with DOMPurify using an HTML-only
+  policy. Embedded scripts, event handlers, unsafe URLs, styles, and named DOM
+  properties are removed before insertion into the page.
+- Stdout, stderr, plain-text outputs, and tracebacks are escaped before ANSI
+  formatting is added. Text that resembles HTML remains literal text.
+- Rich HTML outputs are sanitized and displayed in a 320px-high, scrollable
+  `sandbox=""` iframe. The frame has no script or same-origin permissions, uses
+  `no-referrer`, and applies a CSP that blocks scripts, external resources, forms,
+  and base URLs. Inline styles and embedded data images remain available for
+  tables and plots. Output HTML cannot inherit the host application's CSS.
+- SVG outputs are sanitized and rendered as image data URLs. Plot styles,
+  internal references, and Unicode labels are preserved inside the image;
+  SVG is never inserted directly into the host document.
+- When a supported browser DOM is unavailable, sanitization fails closed by
+  escaping markup instead of returning untrusted HTML.
+
+Custom renderers are trusted application code and replace the corresponding
+built-in protection. `renderMarkdown`, `renderCode`, and `renderError` receive
+untrusted source; escape text and sanitize any HTML they generate. `renderHtml`
+receives sanitized rich HTML, including styles, and must preserve isolation with
+a sandboxed iframe. Do not grant that iframe `allow-scripts` or
+`allow-same-origin`. `renderImage` receives sanitized SVG image URLs; render them
+with an image element rather than decoding and inserting SVG into the page.
+
+JavaScript MIME outputs are not executed. Interactive HTML widgets, external
+resources inside HTML outputs, and raw Markdown styling are intentionally
+restricted. Keep DOMPurify current and rebuild this package when updating it;
+the published bundles include the sanitizer.
+
 ## Development
 
 ### Setup
@@ -192,6 +228,17 @@ npm install
 ```bash
 npm run build
 ```
+
+### Security regression tests
+
+```bash
+npm test
+```
+
+The tests cover rendering sinks, encoded unsafe URLs, text escaping, sandbox
+attributes and CSP, SVG plot compatibility, custom-renderer inputs, and notebook
+loading from objects, JSON strings, and file paths. Use `npm run test:watch` while
+developing.
 
 ### Development with watch mode
 

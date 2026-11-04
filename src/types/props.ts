@@ -30,10 +30,15 @@ export interface JupiterNotebookViewerProps {
   collapsible?: boolean;           // Allow collapsing cells (default: false)
   
   // Rendering options
-  renderMarkdown?: (content: string) => ReactNode;  // Custom markdown renderer
-  renderCode?: (code: string, language: string) => ReactNode; // Custom syntax highlighter
-  renderImage?: (src: string, alt?: string) => ReactNode; // Custom image renderer
-  renderHtml?: (html: string) => ReactNode; // Custom HTML renderer
+  // Custom renderers are trusted application code. Markdown, code and error
+  // callbacks receive untrusted source; sanitize any HTML they generate.
+  renderMarkdown?: (content: string) => ReactNode;
+  renderCode?: (code: string, language: string) => ReactNode;
+  // SVG sources are sanitized image data URLs; render them as images, never inline.
+  renderImage?: (src: string, alt?: string) => ReactNode;
+  // Receives sanitized rich HTML (including styles). Replaces the default sandbox;
+  // the callback must preserve isolation, e.g. an iframe with sandbox="".
+  renderHtml?: (html: string) => ReactNode;
   renderError?: (error: { ename: string; evalue: string; traceback: string[] }) => ReactNode;
   
   // File loading options (only used when notebook is a file path)

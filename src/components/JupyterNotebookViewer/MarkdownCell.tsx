@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { marked } from "marked";
+import { sanitizeMarkdownHtml } from "../../utils/sanitize";
 import { MarkdownCell as MarkdownCellType } from "../../types/notebook";
 import { ClassNames, Styles, Theme } from "../../types/props";
 import {
@@ -38,12 +39,13 @@ export const MarkdownCell = ({
 
     // Use marked to parse markdown
     const html = marked(content, {
+      async: false,
       gfm: true, // GitHub Flavored Markdown
       breaks: true, // Convert line breaks to <br>
     });
     return (
       <div
-        dangerouslySetInnerHTML={{ __html: html }}
+        dangerouslySetInnerHTML={{ __html: sanitizeMarkdownHtml(html) }}
         style={
           {
             padding: isActive ? '0 4px' : '1px 5px',

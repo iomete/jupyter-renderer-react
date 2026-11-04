@@ -8,7 +8,8 @@ import {
 } from '../../types/notebook';
 import { ClassNames, Styles, Theme } from '../../types/props';
 import { cx, getClassName, getStyle, mergeStyles, applyThemeStyles } from '../../utils/styles';
-import { sanitizeHtml, ansiToHtml } from '../../utils/sanitize';
+import { sanitizeHtml, sanitizeSvg, ansiToHtml } from '../../utils/sanitize';
+import { HtmlOutput } from './HtmlOutput';
 
 interface OutputProps {
   output: OutputType;
@@ -167,8 +168,16 @@ export const Output = ({
         const svg = Array.isArray(data['image/svg+xml']) 
           ? data['image/svg+xml'].join('') 
           : data['image/svg+xml'];
-        const img = renderImage ? renderImage(`data:image/svg+xml;base64,${btoa(svg)}`, 'Output image') : (
-          <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(svg) }} />
+        // SVG images cannot execute scripts or access the parent document. Keep
+        // the same boundary for the default renderer and custom image callbacks.
+        const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(sanitizeSvg(svg))}`;
+        const img = renderImage ? renderImage(src, 'Output image') : (
+          <img
+            src={src}
+            alt="Output image"
+            style={{ maxWidth: '100%', height: 'auto' }}
+            loading={lazyLoad ? 'lazy' : undefined}
+          />
         );
         return (
           <div className={getClassName(classNames, 'outputImage')} style={getStyle(styles, 'outputImage')}>
@@ -182,11 +191,12 @@ export const Output = ({
         const html = Array.isArray(data['text/html']) 
           ? data['text/html'].join('') 
           : data['text/html'];
+        const sanitizedHtml = sanitizeHtml(html);
         
         if (renderHtml) {
           return (
             <div className={getClassName(classNames, 'outputHtml')} style={getStyle(styles, 'outputHtml')}>
-              {renderHtml(html)}
+              {renderHtml(sanitizedHtml)}
             </div>
           );
         }
@@ -195,8 +205,9 @@ export const Output = ({
           <div 
             className={getClassName(classNames, 'outputHtml')}
             style={getStyle(styles, 'outputHtml')}
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(html) }}
-          />
+          >
+            <HtmlOutput html={sanitizedHtml} theme={theme} lazyLoad={lazyLoad} />
+          </div>
         );
       }
       
