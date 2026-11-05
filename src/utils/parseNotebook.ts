@@ -37,6 +37,9 @@ export function parseNotebook(notebook: string | JupyterNotebook): JupyterNotebo
     throw new Error('Notebook must have a cells array');
   }
   
+  // Normalize a rendering model without modifying the caller's source object.
+  parsed = { ...parsed };
+
   // Ensure metadata exists
   if (!parsed.metadata || typeof parsed.metadata !== 'object') {
     parsed.metadata = {};
@@ -52,6 +55,8 @@ export function parseNotebook(notebook: string | JupyterNotebook): JupyterNotebo
       throw new Error(`Cell at index ${index} has invalid cell_type: ${cell.cell_type}`);
     }
     
+    cell = { ...cell };
+
     // Ensure metadata exists
     if (!cell.metadata || typeof cell.metadata !== 'object') {
       cell.metadata = {};
@@ -86,6 +91,8 @@ export function parseNotebook(notebook: string | JupyterNotebook): JupyterNotebo
           throw new Error(`Output at cell ${index}, output ${outputIndex} has invalid output_type: ${output.output_type}`);
         }
         
+        output = { ...output };
+
         // Normalize text in stream outputs
         if (output.output_type === 'stream') {
           if (Array.isArray(output.text)) {

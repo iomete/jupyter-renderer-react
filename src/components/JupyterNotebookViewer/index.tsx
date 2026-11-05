@@ -1,11 +1,9 @@
 import React from "react";
-import { JupiterNotebookViewerProps } from "../../types/props";
+import { FetchOptions, JupiterNotebookViewerProps } from "../../types/props";
 import { JupyterNotebook } from "../../types/notebook";
-import { NotebookFilePath } from "../../types/props";
 import { parseNotebook } from "../../utils/parseNotebook";
 import {
-  loadNotebookFromPath,
-  getNotebookInputType,
+  loadNotebookSourceFromPath,
   isNotebookFilePath,
 } from "../../utils/fileLoader";
 import {
@@ -17,9 +15,19 @@ import {
   applyThemeStyles,
 } from "../../utils/styles";
 import { Cell } from "./Cell";
+import { JsonSource } from "./JsonSource";
+
+interface LoadedNotebook {
+  input: JupiterNotebookViewerProps['notebook'];
+  requestKey: string;
+  source: string | null;
+  parsed: JupyterNotebook | null;
+  error: Error | null;
+}
 
 export const JupiterNotebookViewer = ({
   notebook,
+  view = "notebook",
   className,
   classNames,
   styles,
@@ -40,12 +48,29 @@ export const JupiterNotebookViewer = ({
   lazyLoad = false,
   maxOutputHeight,
 }: JupiterNotebookViewerProps) => {
-  const [parsedNotebook, setParsedNotebook] = React.useState<JupyterNotebook | null>(
-    null
-  );
-  const [error, setError] = React.useState<Error | null>(null);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [loaded, setLoaded] = React.useState<LoadedNotebook | null>(null);
   const [activeCell, setActiveCell] = React.useState<number | null>(null);
+
+  const filePath = isNotebookFilePath(notebook) ? notebook.filePath : null;
+  // A host commonly recreates its props when switching views. Only changes to
+  // the actual input or request options should trigger another network request.
+  const input = filePath ?? notebook;
+  const requestKey = filePath === null ? "" : JSON.stringify({
+    headers: Object.entries(fetchOptions?.headers ?? {}).sort(([a], [b]) => a.localeCompare(b)),
+    credentials: fetchOptions?.credentials,
+    timeout: fetchOptions?.timeout,
+  });
+  const callbacks = React.useRef({ onError, onFileLoad, onFileError });
+  React.useEffect(() => {
+    callbacks.current = { onError, onFileLoad, onFileError };
+  }, [onError, onFileLoad, onFileError]);
+
+  // Do not briefly expose the previous file while the next effect starts.
+  const current = loaded?.input === input && loaded.requestKey === requestKey
+    ? loaded
+    : null;
+  const parsedNotebook = current?.parsed ?? null;
+  const error = current?.error ?? null;
 
   const themeObject = React.useMemo(() => getTheme(theme), [theme]);
 
@@ -59,44 +84,97 @@ export const JupiterNotebookViewer = ({
 
   // Load and parse notebook based on an input type
   React.useEffect(() => {
+    let active = true;
+    const controller = new AbortController();
+    setLoaded(null);
+    setActiveCell(null);
+
     const loadNotebook = async () => {
+      let source: string | null = null;
+      let parsed: JupyterNotebook | null = null;
+      let loadError: Error | null = null;
+
       try {
-        setIsLoading(true);
-        setError(null);
-
-        const inputType = getNotebookInputType(notebook);
-        let parsed: JupyterNotebook;
-
-        if (inputType === "filePath") {
-          const filePathObj = notebook as NotebookFilePath;
-          parsed = await loadNotebookFromPath(
-            filePathObj.filePath,
-            fetchOptions
-          );
-          onFileLoad?.(parsed);
+        if (filePath !== null) {
+          const request = JSON.parse(requestKey) as {
+            headers: [string, string][];
+            credentials?: FetchOptions['credentials'];
+            timeout?: number;
+          };
+          source = await loadNotebookSourceFromPath(filePath, {
+            headers: Object.fromEntries(request.headers),
+            credentials: request.credentials,
+            timeout: request.timeout,
+          }, controller.signal);
         } else {
-          parsed = parseNotebook(notebook as string | JupyterNotebook);
+          const serialized = typeof input === "string"
+            ? input
+            : JSON.stringify(input, null, 2);
+          if (typeof serialized !== "string") {
+            throw new Error("Notebook could not be serialized as JSON");
+          }
+          source = serialized;
         }
 
-        setParsedNotebook(parsed);
+        if (!active) return;
+        if (filePath !== null && !source.trim()) {
+          throw new Error(`Notebook file is empty: ${filePath}`);
+        }
+        // Parse a separate model; keep the original representation for JSON.
+        try {
+          parsed = parseNotebook(source);
+        } catch (parseError) {
+          if (filePath !== null) {
+            throw new Error(
+              `Invalid notebook format in file ${filePath}: ${
+                parseError instanceof Error ? parseError.message : 'Unknown parsing error'
+              }`
+            );
+          }
+          throw parseError;
+        }
       } catch (err) {
-        const error =
+        loadError =
           err instanceof Error ? err : new Error("Failed to load notebook");
-        setError(error);
+      }
 
-        // Call appropriate error handler
-        if (isNotebookFilePath(notebook)) {
-          onFileError?.(error);
-        } else {
-          onError?.(error);
-        }
-      } finally {
-        setIsLoading(false);
+      if (!active) return;
+      setLoaded({ input, requestKey, source, parsed, error: loadError });
+      if (loadError) {
+        if (filePath !== null) callbacks.current.onFileError?.(loadError);
+        else callbacks.current.onError?.(loadError);
+      } else if (filePath !== null && parsed) {
+        callbacks.current.onFileLoad?.(parsed);
       }
     };
 
     loadNotebook();
-  }, [notebook, fetchOptions, onError, onFileLoad, onFileError]);
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [input, filePath, requestKey]);
+
+  // Source inspection remains available when JSON or notebook validation fails.
+  if (view === "json" && current?.source !== null && current?.source !== undefined) {
+    return (
+      <div
+        className={cx(className, jupyterLabThemeClass, getClassName(classNames, "root"))}
+        style={mergeStyles(
+          applyThemeStyles(themeObject, "root"),
+          { padding: "16px" },
+          getStyle(styles, "root")
+        )}
+      >
+        <JsonSource
+          source={current.source}
+          theme={themeObject}
+          className={getClassName(classNames, "jsonSource")}
+          style={getStyle(styles, "jsonSource")}
+        />
+      </div>
+    );
+  }
 
   // Error state
   if (error) {
@@ -118,9 +196,9 @@ export const JupiterNotebookViewer = ({
   }
 
   // Loading state
-  if (isLoading || !parsedNotebook) {
-    const loadingMessage = isNotebookFilePath(notebook)
-      ? `Loading notebook from ${(notebook as NotebookFilePath).filePath}...`
+  if (!parsedNotebook) {
+    const loadingMessage = filePath !== null
+      ? `Loading notebook from ${filePath}...`
       : "Loading notebook...";
 
     return (
