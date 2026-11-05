@@ -14,9 +14,13 @@ export interface FetchOptions {
 }
 
 // Main component props
+export type NotebookView = 'notebook' | 'json';
+
 export interface JupiterNotebookViewerProps {
   // Core data
   notebook: JupyterNotebook | string | NotebookFilePath; // Accept parsed object, raw JSON string, or file path
+  // The consuming application owns the view-switching control and its styling.
+  view?: NotebookView;             // Default: 'notebook'; JSON inspects the original input
   
   // Styling approach
   className?: string;              // Root container class
@@ -59,6 +63,7 @@ export interface JupiterNotebookViewerProps {
 // ClassNames approach for CSS modules/Tailwind
 export interface ClassNames {
   root?: string;
+  jsonSource?: string;
   cell?: string;
   cellCode?: string;
   cellMarkdown?: string;
@@ -86,6 +91,7 @@ export interface ClassNames {
 // Styles approach for inline styles/CSS-in-JS
 export interface Styles {
   root?: CSSProperties;
+  jsonSource?: CSSProperties;
   cell?: CSSProperties;
   cellCode?: CSSProperties;
   cellMarkdown?: CSSProperties;

@@ -13,6 +13,29 @@ export async function loadNotebookFromPath(
   filePath: string,
   options: FetchOptions = {}
 ): Promise<JupyterNotebook> {
+  const content = await loadNotebookSourceFromPath(filePath, options);
+
+  if (!content.trim()) {
+    throw new Error(`Notebook file is empty: ${filePath}`);
+  }
+
+  try {
+    return parseNotebook(content);
+  } catch (parseError) {
+    throw new Error(
+      `Invalid notebook format in file ${filePath}: ${
+        parseError instanceof Error ? parseError.message : 'Unknown parsing error'
+      }`
+    );
+  }
+}
+
+/** Fetch the source separately so it remains inspectable when parsing fails. */
+export async function loadNotebookSourceFromPath(
+  filePath: string,
+  options: FetchOptions = {},
+  signal?: AbortSignal
+): Promise<string> {
   // Validate file extension
   if (!filePath.toLowerCase().endsWith('.ipynb')) {
     throw new Error(`Invalid file extension. Expected .ipynb file, got: ${filePath}`);
@@ -30,8 +53,16 @@ export async function loadNotebookFromPath(
 
   // Add timeout if specified
   const controller = new AbortController();
+  let timedOut = false;
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const abort = () => controller.abort();
+  signal?.addEventListener('abort', abort, { once: true });
+  if (signal?.aborted) controller.abort();
   if (options.timeout) {
-    setTimeout(() => controller.abort(), options.timeout);
+    timeout = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, options.timeout);
   }
   fetchOptions.signal = controller.signal;
 
@@ -57,27 +88,11 @@ export async function loadNotebookFromPath(
       console.warn(`Unexpected content type for notebook file: ${contentType}`);
     }
 
-    // Get the content as text first
-    const content = await response.text();
-    
-    if (!content.trim()) {
-      throw new Error(`Notebook file is empty: ${filePath}`);
-    }
-
-    // Parse the notebook content
-    try {
-      return parseNotebook(content);
-    } catch (parseError) {
-      throw new Error(
-        `Invalid notebook format in file ${filePath}: ${
-          parseError instanceof Error ? parseError.message : 'Unknown parsing error'
-        }`
-      );
-    }
+    return await response.text();
   } catch (error) {
     // Handle network errors
     if (error instanceof Error) {
-      if (error.name === 'AbortError') {
+      if (error.name === 'AbortError' && timedOut) {
         throw new Error(`Request timeout loading notebook file: ${filePath}`);
       } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
         throw new Error(`Network error loading notebook file: ${filePath}`);
@@ -88,6 +103,9 @@ export async function loadNotebookFromPath(
     }
     
     throw new Error(`Unknown error loading notebook file: ${filePath}`);
+  } finally {
+    if (timeout !== undefined) clearTimeout(timeout);
+    signal?.removeEventListener('abort', abort);
   }
 }
 

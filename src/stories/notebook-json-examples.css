@@ -1,0 +1,88 @@
+/* Consumer-owned demo chrome. This stylesheet is only imported by Storybook. */
+.notebook-host-example {
+  --notebook-demo-background: #fff;
+  --notebook-demo-foreground: #27272a;
+  --notebook-demo-muted: #71717a;
+  --notebook-demo-border: #e4e4e7;
+  --notebook-demo-hover: #f4f4f5;
+  --notebook-demo-ring: #71717a;
+  max-width: 960px;
+  margin-inline: auto;
+  overflow: hidden;
+  border: 1px solid var(--notebook-demo-border);
+  border-radius: 8px;
+  background: var(--notebook-demo-background);
+  color: var(--notebook-demo-foreground);
+  font-family: system-ui, sans-serif;
+}
+
+.notebook-host-example[data-theme="dark"] {
+  --notebook-demo-background: #18181b;
+  --notebook-demo-foreground: #fafafa;
+  --notebook-demo-muted: #a1a1aa;
+  --notebook-demo-border: #3f3f46;
+  --notebook-demo-hover: #27272a;
+  --notebook-demo-ring: #a1a1aa;
+}
+
+.notebook-host-example__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--notebook-demo-border);
+}
+
+.notebook-host-example__file {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.notebook-host-example__view {
+  color: var(--notebook-demo-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.notebook-host-example__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  margin-left: auto;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: 500 13px/20px system-ui, sans-serif;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.notebook-host-example__button:hover {
+  background: var(--notebook-demo-hover);
+}
+
+.notebook-host-example__button:focus-visible {
+  outline: 2px solid var(--notebook-demo-ring);
+  outline-offset: 2px;
+}
+
+.notebook-host-example__custom-source {
+  border: 1px solid var(--jp-border-color1, #d4d4d8);
+}
+
+@media (pointer: coarse) {
+  .notebook-host-example__button {
+    min-height: 44px;
+  }
+}

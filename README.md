@@ -129,6 +129,66 @@ function App() {
 - **File Loading**: Direct loading from URLs or file paths
 - **Error Handling**: Comprehensive error handling for file loading and parsing
 
+## Notebook and JSON views
+
+Set `view="json"` to inspect a notebook's underlying JSON. The default,
+`view="notebook"`, keeps the existing rendered notebook with code and saved
+outputs. View selection is controlled by the consuming application; the renderer
+does not add a button or toolbar.
+
+Place a **View JSON** / **View notebook** button at the right of your existing file
+header, using your application's UI-library Button. For example, in an app that
+already uses shadcn/Tailwind:
+
+```tsx
+import { useState } from 'react';
+import {
+  JupiterNotebookViewer,
+  type JupiterNotebookViewerProps,
+  type NotebookView,
+} from '@iomete/jupyter-renderer-react';
+import { Button } from '@/components/ui/button'; // Your application's Button
+
+export function NotebookPanel({ notebook }: Pick<JupiterNotebookViewerProps, 'notebook'>) {
+  const [view, setView] = useState<NotebookView>('notebook');
+
+  return (
+    <section>
+      <div className="flex items-center justify-end pb-3">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setView(current => current === 'notebook' ? 'json' : 'notebook')}
+        >
+          {view === 'notebook' ? 'View JSON' : 'View notebook'}
+        </Button>
+      </div>
+      <JupiterNotebookViewer notebook={notebook} view={view} />
+    </section>
+  );
+}
+```
+
+The application supplies the Button and its styles. This package does not require
+shadcn or Tailwind. The JSON surface follows the viewer's `theme` and can be
+customized with `classNames.jsonSource` and `styles.jsonSource`.
+
+JSON inspection is read-only, with syntax colors and keyboard-accessible folding
+for nested data and long values such as embedded images. JSON strings and fetched
+files are retained before notebook normalization. Object inputs are serialized
+before rendering and are not mutated; their original file whitespace is not
+available. Valid JSON is displayed with readable formatting, while invalid JSON
+is shown as its original text.
+
+The JSON view remains available if the source loaded but notebook parsing fails.
+Switching views reuses the loaded source without another fetch. Downloads and
+exports are outside this API.
+
+See **Components / JupyterNotebookViewer / JSON view** in Storybook for
+examples of host-owned controls, JSON-first rendering, themes, large payloads, and
+invalid-source inspection.
+
 ## Error Handling
 
 The component provides robust error handling for different scenarios:
@@ -267,6 +327,7 @@ npm run build-storybook
 | Prop              | Type                | Default   | Description                           |
 | ----------------- | ------------------- | --------- | ------------------------------------- |
 | `notebook`        | `JupyterNotebook`   | required  | The Jupyter notebook object to render |
+| `view`           | `'notebook' \| 'json'` | `'notebook'` | Controlled rendered notebook or read-only JSON view |
 | `theme`           | `'light' \| 'dark'` | `'light'` | Color theme for the renderer          |
 | `showCellNumbers` | `boolean`           | `true`    | Show execution count for code cells   |
 | `showOutputs`     | `boolean`           | `true`    | Show cell outputs                     |

@@ -6,6 +6,7 @@ export { JupiterNotebookViewer } from './components/JupyterNotebookViewer';
 // Types
 export type { 
   JupiterNotebookViewerProps,
+  NotebookView,
   ClassNames,
   Styles,
   Theme,
