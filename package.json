@@ -81,7 +81,7 @@
   },
   "homepage": "https://github.com/iomete/jupyter-renderer-react#readme",
   "dependencies": {
-    "@jupyterlab/codemirror": "^4.6.5",
+    "@jupyterlab/codemirror": "^4.6.6",
     "@jupyterlab/theme-dark-extension": "^4.6.5",
     "@jupyterlab/theme-light-extension": "^4.6.5",
     "@jupyterlab/ui-components": "^4.6.5",
