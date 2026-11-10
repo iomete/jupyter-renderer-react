@@ -84,7 +84,7 @@
     "@jupyterlab/codemirror": "^4.6.6",
     "@jupyterlab/theme-dark-extension": "^4.6.6",
     "@jupyterlab/theme-light-extension": "^4.6.6",
-    "@jupyterlab/ui-components": "^4.6.5",
+    "@jupyterlab/ui-components": "^4.6.6",
     "dompurify": "^3.4.17",
     "marked": "^16.4.2"
   },
