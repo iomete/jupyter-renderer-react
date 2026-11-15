@@ -92,7 +92,7 @@
     "sanitize-html": "2.18.1",
     "postcss-selector-parser": "7.1.8",
     "@joshwooding/vite-plugin-react-docgen-typescript": {
-      "glob": "14.0.4"
+      "glob": "14.0.5"
     }
   }
 }
