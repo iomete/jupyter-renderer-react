@@ -89,7 +89,7 @@
     "marked": "^16.4.2"
   },
   "overrides": {
-    "sanitize-html": "2.18.1",
+    "sanitize-html": "2.18.2",
     "postcss-selector-parser": "7.1.8",
     "@joshwooding/vite-plugin-react-docgen-typescript": {
       "glob": "14.0.4"
